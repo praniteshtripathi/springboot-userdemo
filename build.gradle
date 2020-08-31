@@ -1,0 +1,43 @@
+plugins {
+    id 'org.springframework.boot' version '2.3.0.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'java'
+    id "com.palantir.docker" version "0.25.0"
+}
+
+repositories {
+    mavenCentral()
+}
+group='rnd'
+bootJar {
+    baseName = 'springboot-userdemo'
+    version =  '0.1.0'
+}
+
+// tag::task[]
+task unpack(type: Copy) {
+    dependsOn bootJar
+    from(zipTree(tasks.bootJar.outputs.files.singleFile))
+    into("build/dependency")
+}
+docker {
+    name "${project.group}/${bootJar.baseName}"
+    copySpec.from(tasks.unpack.outputs).into("dependency")
+    buildArgs(['DEPENDENCY': "dependency"])
+}
+// end::task[]
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+group = 'Springboot-userdemo'
+version = '0.0.1-SNAPSHOT'
+
+dependencies {
+   
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+}
